@@ -1,9 +1,9 @@
 name: Generate clients
 on: push
 jobs:
-  generate-clients:
+  generate-sdk:
     runs-on: ubuntu-latest
-    name: Example
+    name: Generate Go SDK
     steps:
     - uses: actions/checkout@master
     - name: Set up Go
@@ -32,7 +32,7 @@ jobs:
     
     - name: Commit new client
       run: |
-        git config --global user.name 'Crspy2'
+        git config --global user.name 'Crspy'
         git config --global user.email 'crspy8687@gmail.com'
         git add go-client/
         git commit -am "Update golang client"
