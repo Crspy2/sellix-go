@@ -2,8 +2,6 @@ name: Generate clients
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -12,62 +10,30 @@ jobs:
     name: Generate Go SDK
     steps:
       - uses: actions/checkout@master
-
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-
       - name: Cleanup old client
         run: rm -rf go-client/
-
       - name: Generate new client
         uses: openapi-generators/openapitools-generator-action@v1
         with:
           generator: go
           openapi-url: https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json
           command-args: --additional-properties packageName=sellix --git-repo-id sellix-go --git-user-id crspy2
-
+      
       - name: Tidy Go Modules
         working-directory: go-client
         run: go mod tidy
-
       - name: Run Go Tests
         working-directory: go-client
         run: go test ./test
-
+      
       - name: Commit new client
         run: |
           git config --global user.name 'Crspy'
           git config --global user.email 'crspy8687@gmail.com'
           git add go-client/
-          git commit -am "Update Go client"
+          git commit -am "Update golang client"
           git push
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          release_name: "Go SDK Release v${{ github.run_number }}"
-          draft: false
-          prerelease: false
-
-      - name: Upload Go SDK to Release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./go-client
-          asset_name: go-client.tar.gz
-          asset_content_type: application/gzip
-
-      - name: Publish Package to GitHub Registry
-        run: |
-          cd go-client
-          go mod tidy
-          git tag -a v${{ github.run_number }} -m "Go SDK v${{ github.run_number }}"
-          git push origin --tags
