@@ -21,7 +21,8 @@ jobs:
         with:
           generator: go
           openapi-url: https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json
-          command-args: --additional-properties packageName=sellix --git-repo-id sellix-go --git-user-id crspy2
+          
+          command-args: --additional-properties packageName=sellix,module=github.com/crspy2/sellix-go/go-client --git-repo-id sellix-go --git-user-id crspy2
       
       - name: Tidy Go Modules
         working-directory: go-client
