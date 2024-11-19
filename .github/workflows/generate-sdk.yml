@@ -55,7 +55,7 @@ jobs:
             -g go \
             -o ./ \
             --git-user-id crspy2 \
-            --git-repo-id YOUR_REPO_NAME \
+            --git-repo-id sellix-go \
             --additional-properties packageName=sellix-go
 
       - name: Initialize Go Module
