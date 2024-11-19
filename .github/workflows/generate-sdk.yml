@@ -1,101 +1,32 @@
 name: Generate Go SDK
-
-on:
-  workflow_dispatch:
-
+on: push
 jobs:
-  generate:
+  generate-clients:
     runs-on: ubuntu-latest
-
+    name: Generate Go SDK
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      # Checkout the repository
+      - uses: actions/checkout@v3
 
-      - name: Set up Git
-        run: |
-          git checkout -B sdk
+      # Cleanup old client
+      - name: Cleanup old Go client
+        run: rm -rf go-client/
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 'stable'
-
-      - name: Verify Go Version
-        run: go version
-
-      - name: Install OpenAPI Generator CLI via npm
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-      - run: npm install -g @openapitools/openapi-generator-cli@latest
-
-      - name: Determine New Version
-        id: vars
-        run: |
-          LATEST_TAG=$(git tag --list 'v*' --sort=-version:refname | head -n 1 || echo "v0.0.0")
-          echo "Latest tag: $LATEST_TAG"
-
-          VERSION_PARTS=(${LATEST_TAG//./ })
-          MAJOR=${VERSION_PARTS[0]:1}
-          MINOR=${VERSION_PARTS[1]}
-          PATCH=${VERSION_PARTS[2]}
-
-          PATCH=$((PATCH + 1))
-          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
-          echo "New version: $NEW_VERSION"
-
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-
+      # Generate new Go client
       - name: Generate Go SDK
-        run: |
-          openapi-generator-cli generate \
-            -i https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json \
-            -g go \
-            -o ./ \
-            --git-user-id crspy2 \
-            --git-repo-id sellix-go \
-            --additional-properties packageName=sellix
-
-      - name: Initialize Go Module
-        run: |
-          if [ ! -f go.mod ]; then
-            go mod init github.com/crspy2/sellix-go
-          else
-            echo "go.mod already exists"
-          fi
-
-      - name: Tidy Go Modules
-        run: go mod tidy
-
-      - name: Run Tests
-        run: go test ./test
-
-      - name: Configure Git User
-        run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-
-      - name: Commit and Push Changes
-        run: |
-          git add .
-          git commit -m "Regenerated Go SDK from OpenAPI schema"
-          git push origin sdk --force
-
-      - name: Create Git Tag
-        run: |
-          git tag ${{ steps.vars.outputs.new_version }}
-          git push origin ${{ steps.vars.outputs.new_version }}
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
+        uses: openapi-generators/openapitools-generator-action@v1
         with:
-          token: ${{ secrets.SECRET_TOKEN }}
-          tag_name: ${{ steps.vars.outputs.new_version }}
-          release_name: Release ${{ steps.vars.outputs.new_version }}
-          draft: false
-          prerelease: false
-          body: |
-            This release includes the latest Go SDK generated from the OpenAPI schema.
-          target_commitish: sdk
+          generator: go
+          input-spec: https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json
+          additional-properties: packageName=sellix
+
+      # Commit new client
+      - name: Commit new client
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name 'Crspy2'
+          git config --global user.email 'crspy8687@gmail.com'
+          git add go-client/
+          git commit -am "Update Go SDK client"
+          git push
