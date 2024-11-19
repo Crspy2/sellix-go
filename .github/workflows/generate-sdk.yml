@@ -19,11 +19,15 @@ jobs:
       with:
         generator: go
         openapi-url: https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json
-
+    - name: TEST
+      run: ls -al --color=auto
+    
     - name: Tidy Go Modules
+      working-directory: go-client
       run: go mod tidy
 
     - name: Run Go Tests
+      working-directory: go-client
       run: go test ./test
     
     - name: Commit new client
