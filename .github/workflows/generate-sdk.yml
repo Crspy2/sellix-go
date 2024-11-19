@@ -1,32 +1,35 @@
-name: Generate Go SDK
+name: Generate clients
 on: push
 jobs:
   generate-clients:
     runs-on: ubuntu-latest
-    name: Generate Go SDK
+    name: Example
     steps:
-      # Checkout the repository
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@master
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: 'stable'
 
-      # Cleanup old client
-      - name: Cleanup old Go client
-        run: rm -rf go-client/
+    - name: Cleanup old client
+      run: rm -rf go-client/
 
-      # Generate new Go client
-      - name: Generate Go SDK
-        uses: openapi-generators/openapitools-generator-action@v1
-        with:
-          generator: go
-          input-spec: https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json
-          additional-properties: packageName=sellix
+    - name: Generate new client
+      uses: openapi-generators/openapitools-generator-action@v1
+      with:
+        generator: go
+        openapi-url: https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json
 
-      # Commit new client
-      - name: Commit new client
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config --global user.name 'Crspy2'
-          git config --global user.email 'crspy8687@gmail.com'
-          git add go-client/
-          git commit -am "Update Go SDK client"
-          git push
+    - name: Tidy Go Modules
+      run: go mod tidy
+
+    - name: Run Go Tests
+      run: go test ./test
+    
+    - name: Commit new client
+      run: |
+        git config --global user.name 'Crspy2'
+        git config --global user.email 'crspy8687@gmail.com'
+        git add go-client/
+        git commit -am "Update golang client"
+        git push
