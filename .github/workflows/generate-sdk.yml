@@ -37,3 +37,27 @@ jobs:
           git add go-client/
           git commit -am "Update golang client"
           git push
+
+      - name: Tag Release
+        id: tag_release
+        run: |
+          TAG="v$(date +%Y.%m.%d.%H%M%S)"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          git tag -a $TAG -m "Release $TAG"
+          git push origin $TAG
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.TAG }}
+          release_name: "Go SDK Release ${{ env.TAG }}"
+          draft: false
+          prerelease: false
+
+      - name: Make Package Searchable
+        run: |
+          go env -w GOPROXY=https://proxy.golang.org,direct
+          go list -m github.com/crspy2/sellix-go@${{ env.TAG }}
