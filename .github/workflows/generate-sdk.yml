@@ -33,7 +33,7 @@ jobs:
         run: |
           git config --global user.name 'Crspy'
           git config --global user.email 'crspy8687@gmail.com'
-          git add go-client/
+          git add ./
           git commit -am "Update golang client"
           git push
 
