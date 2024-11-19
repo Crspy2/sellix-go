@@ -22,7 +22,7 @@ jobs:
           generator: go
           openapi-url: https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json
           
-          command-args: --additional-properties packageName=sellix,module=github.com/crspy2/sellix-go/go-client --git-repo-id sellix-go --git-user-id crspy2
+          command-args: -o ./ --additional-properties packageName=sellix,module=github.com/crspy2/sellix-go/go-client --git-repo-id sellix-go --git-user-id crspy2
       
       - name: Tidy Go Modules
         working-directory: go-client
@@ -60,5 +60,4 @@ jobs:
 
       - name: Make Package Searchable
         run: |
-          go env -w GOPROXY=https://proxy.golang.org,direct
-          go list -m github.com/crspy2/sellix-go@${{ env.TAG }}
+          GOPROXY=proxy.golang.org go list -m github.com/crspy2/sellix-go@${{ env.TAG }}
