@@ -91,7 +91,7 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SECRET_TOKEN }}
           tag_name: ${{ steps.vars.outputs.new_version }}
           release_name: Release ${{ steps.vars.outputs.new_version }}
           draft: false
