@@ -51,7 +51,7 @@ jobs:
       - name: Generate Go SDK
         run: |
           openapi-generator-cli generate \
-            -i https://raw.githubusercontent.com/Sellix/developers/main/api-reference/openapi.json \
+            -i https://raw.githubusercontent.com/Crspy2/developers/main/api-reference/openapi.json \
             -g go \
             -o ./ \
             --git-user-id crspy2 \
