@@ -1,5 +1,7 @@
 name: Generate clients
-on: push
+on: 
+  push:
+  workflow_dispatch:
 jobs:
   generate-sdk:
     runs-on: ubuntu-latest
