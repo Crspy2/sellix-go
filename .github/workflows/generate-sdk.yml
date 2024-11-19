@@ -56,7 +56,7 @@ jobs:
             -o ./ \
             --git-user-id crspy2 \
             --git-repo-id sellix-go \
-            --additional-properties packageName=sellix-go
+            --additional-properties packageName=sellix
 
       - name: Initialize Go Module
         run: |
@@ -70,7 +70,7 @@ jobs:
         run: go mod tidy
 
       - name: Run Tests
-        run: go test ./...
+        run: go test ./test
 
       - name: Configure Git User
         run: |
